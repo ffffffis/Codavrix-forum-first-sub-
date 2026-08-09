@@ -1,7 +1,8 @@
 #profile-title: codavrix forum 🌸 first sub
+#color-profile: 
 #profile-update-interval: 24
 #subscription-userinfo: upload=0; download=0; total=0; expire=0
-#announce: 🌸 codavrix forum | 20 ГБ трафика
+#announce: охае датебае 
 #support-url: https://t.me/codavrix_forum
 #profile-web-page-url: https://t.me/codavrix_forum
 
