@@ -1,6 +1,6 @@
 #profile-title: codavrix forum 🌸 first sub
 #profile-update-interval: 24
-#subscription-userinfo: upload=0; download=0; total=21474836480; expire=0
+#subscription-userinfo: upload=0; download=0; total=0; expire=0
 #announce: 🌸 codavrix forum | 20 ГБ трафика
 #support-url: https://t.me/codavrix_forum
 #profile-web-page-url: https://t.me/codavrix_forum
