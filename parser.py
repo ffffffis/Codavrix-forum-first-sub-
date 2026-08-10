@@ -10,8 +10,6 @@ import os
 OUTPUT_FILE = "working_configs.txt"
 TIMEOUT = 3
 USER_AGENT = "Mozilla/5.0"
-MAX_REPOS = 500
-GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
 # --------------------------------
 
 # ХЕДЕР ДЛЯ ПОДПИСКИ
@@ -31,53 +29,6 @@ HEADER = """#hide-servers: true
 #support-url: https://t.me/codavrix_forum
 #profile-web-page-url: https://t.me/codavrix_forum
 """
-
-SEARCH_QUERIES = [
-    'vless reality',
-    'trojan config',
-    'v2ray free',
-    'vless config',
-    'hysteria2 config',
-    'free vpn config',
-    'v2ray reality',
-    'vmess config',
-]
-
-def search_github(query):
-    headers = {'User-Agent': USER_AGENT}
-    if GITHUB_TOKEN:
-        headers['Authorization'] = f'token {GITHUB_TOKEN}'
-    
-    all_files = []
-    
-    params = {
-        'q': f'{query} extension:txt OR extension:json OR extension:conf OR extension:list',
-        'per_page': 100,
-        'sort': 'updated'
-    }
-    
-    try:
-        r = requests.get(
-            'https://api.github.com/search/code',
-            params=params,
-            headers=headers,
-            timeout=15
-        )
-        
-        if r.status_code == 200:
-            data = r.json()
-            for item in data.get('items', []):
-                raw_url = f"https://raw.githubusercontent.com{item['path']}"
-                all_files.append({
-                    'name': item['name'],
-                    'path': item['path'],
-                    'repo': item['repository']['full_name'],
-                    'url': raw_url,
-                })
-    except:
-        pass
-    
-    return all_files
 
 def extract_links(text):
     patterns = [
@@ -180,33 +131,42 @@ def rename_link(link):
 
 def main():
     print("=" * 70)
-    print("🚀 GitHub PARSER — ВЕСЬ GITHUB КАЖДЫЙ ЧАС")
+    print("🚀 ПАРСЕР — ТВОИ ИСТОЧНИКИ")
     print("=" * 70)
+    
+    # Читаем источники
+    try:
+        with open("sources.txt", "r", encoding="utf-8") as f:
+            repos = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    except Exception as e:
+        print(f"❌ Ошибка чтения sources.txt: {e}")
+        return
+    
+    if not repos:
+        print("❌ Нет источников в sources.txt!")
+        return
+    
+    print(f"\n📚 Источников: {len(repos)}")
     
     all_links = []
     seen = set()
     
-    for query in SEARCH_QUERIES:
-        print(f"\n🔍 Поиск: {query}")
-        files = search_github(query)
-        print(f"  📄 Найдено файлов: {len(files)}")
-        
-        for file_info in files[:MAX_REPOS]:
-            try:
-                r = requests.get(file_info['url'], timeout=10, headers={'User-Agent': USER_AGENT})
-                if r.status_code == 200:
-                    links = extract_links(r.text)
-                    for link in links:
-                        if link not in seen:
-                            seen.add(link)
-                            all_links.append(link)
-                    if links:
-                        print(f"    ✅ +{len(links)} ссылок из {file_info['name']}")
-            except:
-                pass
-            time.sleep(0.1)
-        
-        time.sleep(1)
+    for url in repos:
+        print(f"\n🔍 Парсинг: {url}")
+        try:
+            r = requests.get(url, timeout=15, headers={'User-Agent': USER_AGENT})
+            if r.status_code == 200:
+                links = extract_links(r.text)
+                for link in links:
+                    if link not in seen:
+                        seen.add(link)
+                        all_links.append(link)
+                print(f"  ✅ +{len(links)} ссылок")
+            else:
+                print(f"  ❌ Ошибка HTTP: {r.status_code}")
+        except Exception as e:
+            print(f"  ❌ Ошибка: {e}")
+        time.sleep(0.5)
     
     print(f"\n📊 Всего найдено уникальных ссылок: {len(all_links)}")
     
@@ -241,4 +201,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-  
