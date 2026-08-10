@@ -27,6 +27,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python parser.py
+          
       
       - name: Commit and push
         run: |
